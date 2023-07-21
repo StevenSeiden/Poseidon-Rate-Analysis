@@ -1,11 +1,11 @@
 import sys
 
-def parse_text_file(file_path, ip1, ip2):
+def parse(file, ip1, ip2):
     rates = {}
-    seen_ips = set()
-    calculate_average = False
+    seenIPs = set()
+    beginAveraging = False
 
-    with open(file_path, 'r') as file:
+    with open(file, 'r') as file:
         lines = file.readlines()
 
         for line in lines:
@@ -14,14 +14,14 @@ def parse_text_file(file_path, ip1, ip2):
                 rate = float(line.split()[3])
 
                 # Add the IP to the found list
-                seen_ips.add(srcip)
+                seenIPs.add(srcip)
 
                 # Check if we have found all wanted IPs
-                if ip1 in seen_ips and ip2 in seen_ips and not calculate_average:
-                    calculate_average = True
+                if ip1 in seenIPs and ip2 in seenIPs and not beginAveraging:
+                    beginAveraging = True
 
                 # Add found rate to average
-                if calculate_average:
+                if beginAveraging:
                     if srcip in rates:
                         rates[srcip].append(rate)
                     else:
@@ -30,29 +30,29 @@ def parse_text_file(file_path, ip1, ip2):
     return rates
 
 
-def calculate_average_rate(rates):
-    average_rates = {}
-    for srcip, rate_list in rates.items():
+def calcAvg(rates):
+    averages = {}
+    for srcip, rateList in rates.items():
         # Calculate the average rate for IPs
-        average_rate = sum(rate_list) / len(rate_list)
-        average_rates[srcip] = average_rate
+        averageRate = sum(rateList) / len(rateList)
+        averages[srcip] = averageRate
 
-    return average_rates
+    return averages
 
 
 # Log file to read
-file_path = sys.argv[1] # 'trace_multi_hop_congestion_small-topo_racks.txt'
+file = sys.argv[1] # 'trace_multi_hop_congestion_small-topo_racks.txt'
 
 # IP addresses to compare
 ip1 = sys.argv[2]  # '0b002001'
 ip2 = sys.argv[3]  # '0b000201'
 
-parsed_data = parse_text_file(file_path, ip1, ip2)
-average_rates = calculate_average_rate(parsed_data)
+parsedData = parse(file, ip1, ip2)
+averages = calcAvg(parsedData)
 
 
-if ip1 in average_rates:
-    print(f"srcip: {ip1}, average rate: {average_rates[ip1]}")
+if ip1 in averages:
+    print(f"srcip: {ip1}, average rate: {averages[ip1]}")
 
-if ip2 in average_rates:
-    print(f"srcip: {ip2}, average rate: {average_rates[ip2]}")
+if ip2 in averages:
+    print(f"srcip: {ip2}, average rate: {averages[ip2]}")
